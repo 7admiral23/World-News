@@ -1,30 +1,49 @@
+//
+//  GlobalView.swift
+//  WorldNews
+//
+//  Created by Ulugbek Abdimurodov on 18/12/24.
+//
+
+
 import SwiftUI
-import MapKit
 
 struct GlobalView: View {
-    @State private var region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0, longitude: 0),
-                                                   span: MKCoordinateSpan(latitudeDelta: 50, longitudeDelta: 50))
-    let newsItems: [News] = News.sampleData // Replace with your data source
-    
+    @StateObject private var newsFetcher = NewsFetcher()
+    @State private var selectedNews: Article? = nil
+    @State private var showActionSheet = false
+
     var body: some View {
-        ZStack {
-            Map(coordinateRegion: $region, annotationItems: newsItems) { item in
-                MapAnnotation(coordinate: item.coordinate) {
-                    CircleImageView(imageName: item.imageName)
-                        .onTapGesture {
-                            showActionSheet(for: item)
+        NavigationView {
+            List(newsFetcher.news) { article in
+                HStack {
+                    if let imageUrl = article.urlToImage, let url = URL(string: imageUrl) {
+                        AsyncImage(url: url) { image in
+                            image.resizable().scaledToFill()
+                        } placeholder: {
+                            Color.gray
                         }
+                        .frame(width: 50, height: 50)
+                        .clipShape(Circle())
+                    }
+                    Text(article.title).bold()
+                }
+                .onTapGesture {
+                    selectedNews = article
+                    showActionSheet = true
                 }
             }
-        }
-    }
-    
-    private func showActionSheet(for news: News) {
-        let alert = UIAlertController(title: news.title, message: news.description, preferredStyle: .actionSheet)
-        alert.addAction(UIAlertAction(title: "Close", style: .cancel))
-        
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-            windowScene.windows.first?.rootViewController?.present(alert, animated: true)
+            .onAppear {
+                newsFetcher.fetchNews()
+            }
+            .actionSheet(isPresented: $showActionSheet) {
+                ActionSheet(
+                    title: Text(selectedNews?.title ?? "News Details"),
+                    message: Text(selectedNews?.description ?? "No description available"),
+                    buttons: [.cancel()]
+                )
+            }
+            .navigationTitle("Global News")
         }
     }
 }

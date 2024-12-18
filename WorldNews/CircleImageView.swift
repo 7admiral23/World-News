@@ -1,3 +1,11 @@
+//
+//  CircleImageView.swift
+//  WorldNews
+//
+//  Created by Ulugbek Abdimurodov on 18/12/24.
+//
+
+
 import SwiftUI
 
 struct CircleImageView: View {

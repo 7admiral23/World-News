@@ -1,3 +1,11 @@
+//
+//  LocationManager.swift
+//  WorldNews
+//
+//  Created by Ulugbek Abdimurodov on 18/12/24.
+//
+
+
 import Foundation
 import CoreLocation
 
