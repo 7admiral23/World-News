@@ -14,7 +14,7 @@ Features ✨
 
 Screenshots 📱
 
-Here are previews of the app’s interface:
+Here are previews of the app’s interface(in progress):
 
 ![World news](https://github.com/user-attachments/assets/f9bd641b-e593-4066-b408-11740cdcf75d)
 
