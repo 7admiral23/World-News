@@ -7,43 +7,32 @@
 
 
 import SwiftUI
+import MapKit
 
 struct GlobalView: View {
-    @StateObject private var newsFetcher = NewsFetcher()
-    @State private var selectedNews: Article? = nil
-    @State private var showActionSheet = false
-
+    @State private var region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0, longitude: 0),
+                                                   span: MKCoordinateSpan(latitudeDelta: 50, longitudeDelta: 50))
+    let newsItems: [News] = News.sampleData
+    
     var body: some View {
-        NavigationView {
-            List(newsFetcher.news) { article in
-                HStack {
-                    if let imageUrl = article.urlToImage, let url = URL(string: imageUrl) {
-                        AsyncImage(url: url) { image in
-                            image.resizable().scaledToFill()
-                        } placeholder: {
-                            Color.gray
+        ZStack {
+            Map(coordinateRegion: $region, annotationItems: newsItems) { item in
+                MapAnnotation(coordinate: item.coordinate) {
+                    CircleImageView(imageName: item.imageName)
+                        .onTapGesture {
+                            showActionSheet(for: item)
                         }
-                        .frame(width: 50, height: 50)
-                        .clipShape(Circle())
-                    }
-                    Text(article.title).bold()
-                }
-                .onTapGesture {
-                    selectedNews = article
-                    showActionSheet = true
                 }
             }
-            .onAppear {
-                newsFetcher.fetchNews()
-            }
-            .actionSheet(isPresented: $showActionSheet) {
-                ActionSheet(
-                    title: Text(selectedNews?.title ?? "News Details"),
-                    message: Text(selectedNews?.description ?? "No description available"),
-                    buttons: [.cancel()]
-                )
-            }
-            .navigationTitle("Global News")
+        }
+    }
+    
+    private func showActionSheet(for news: News) {
+        let alert = UIAlertController(title: news.title, message: news.description, preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Close", style: .cancel))
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            windowScene.windows.first?.rootViewController?.present(alert, animated: true)
         }
     }
 }
